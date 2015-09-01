@@ -68,24 +68,6 @@ class SecurityDefinitions(atom):
     name = Dict(Str(), SecurityScheme)
     _central_object = "name"
         
-class Swagger(atom):
-    swagger = Str(2.0)
-    info = Instance(Info)
-    host = Str()
-    basePath = Str()
-    schemes = Enum([None,"http", "https", "ws", "wss"])
-    consumes = List(Str())
-    produces = List(Str())
-    #paths = Instance(Paths)
-    #definitions = Instance(Definitions)
-    #parameters = Instance(Parameters)
-    #responses = Instance(Responses)
-    securityDefinitions = Instance(SecurityDefinitions)
-    #security = Instance(security)
-    tags = Instance(Tag)
-    externalDocs = Instance(ExternalDocs)
-    #_required=["paths","info","swagger"]
-
 class Item(atom):
     type_   = Enum([None,"string","number","integer","boolean","array","file"])
     format  = Str()
@@ -133,7 +115,10 @@ class Schema(Item):
 
     _name_mappings = {"ref_":"$ref"}
     _name_mappings.update(Item._name_mappings)
-    
+
+class Definitions(atom):
+    name = Dict(Str(), Instance(Schema))
+    _central_object = "name"
 
 class Parameter(Item):
     name = Str()
@@ -165,6 +150,29 @@ class Headers(atom):
 class Example(atom):
     mime_type = Dict(Str(),Dict(Str(),Str()))
     _central_object = "mime_type"
+
+###############################################################################################
+
+class Swagger(atom):
+    swagger = Str(2.0)
+    info = Instance(Info)
+    host = Str()
+    basePath = Str()
+    schemes = Enum([None,"http", "https", "ws", "wss"])
+    consumes = List(Str())
+    produces = List(Str())
+    #paths = Instance(Paths)
+    definitions = Instance(Definitions)
+    #parameters = Instance(Parameters)
+    #responses = Instance(Responses)
+    securityDefinitions = Instance(SecurityDefinitions)
+    security = List(Instance(SecurityRequirement))
+    tags = Instance(Tag)
+    externalDocs = Instance(ExternalDocs)
+    #_required=["paths","info","swagger"]
+
+###############################################################################################
+
 
 #A = License(name=u"test_project",url='http日本')
 X = Info(title="test_project",version="1.0")
