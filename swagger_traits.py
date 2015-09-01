@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from atom import atom
-from traits.api import Instance, Int, Str, Float, List, Enum, Bool, Any
+from traits.api import Instance, Int, Str, Float, List, Enum, Bool, Any, Dict
 
 class License(atom):
     name = Str()
@@ -30,9 +30,15 @@ class XMLObject(atom):
     wrapped   = Bool(None)
 
 class ExternalDocs(atom):
-    description    = Str()
+    description = Str()
     url = Str()
     _required = ["url"]
+
+class Tag(atom):
+    name = Str()
+    description = Str()
+    externalDocs = Instance(ExternalDocs)
+    _required = ["name"]
 
 class Swagger(atom):
     swagger = Str(2.0)
@@ -48,7 +54,7 @@ class Swagger(atom):
     #responses = Instance(Responses)
     #securityDefinitions = Instance(SecurityDefinitions)
     #security = Instance(security)
-    #tags = Instance(tags)
+    tags = Instance(Tag)
     externalDocs = Instance(ExternalDocs)
     #_required=["paths","info","swagger"]
 
@@ -121,17 +127,47 @@ class Parameter(Item):
     _name_mappings = {"in_":"in"}
     _name_mappings.update(Item._name_mappings)
 
+class Header(Item):
+    pass
+
+class Headers(atom):
+    headers = Dict(Str(), Header)
+    _central_object = "headers"
+
+class Example(atom):
+    mime_type = Dict(Str(),Dict(Str(),Str()))
+    _central_object = "mime_type"
+
+
 #A = License(name=u"test_project",url='http日本')
 X = Info(title="test_project",version="1.0")
 S = Swagger(info=X,in_="query")
 P = Parameter(name="foo",in_="query",type_="string")
 P.maximum = 20.2
 
+EX = Example(mime_type={"application/json":{'name':'puma'}})
 print Schema(type_="integer")
-
 print S
-
 print P
 
+    
+headers = {
+    "X-Rate-Limit-Limit": Header(**{
+        "description": "The number of allowed requests in the current period",
+        "type_": "integer"
+    }),
+    "X-Rate-Limit-Remaining": Header(**{
+        "description": "The number of remaining requests in the current period",
+        "type_": "integer"
+    }),
+    "X-Rate-Limit-Reset": Header(**{
+        "description": "The number of seconds left in the current period",
+        "type_": "integer"
+    })
+}
+
+
+print type(Headers(headers=headers).as_dict()["X-Rate-Limit-Reset"])
+print Headers(headers=headers)
 
 

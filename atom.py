@@ -14,6 +14,7 @@ class atom(HasTraits):
     _required = []
     _conditional_required = {}
     _name_mappings = {}
+    _central_object = None
 
     def __init__(self,*args,**kwargs):
         super(HasTraits,self).__init__(*args,**kwargs)
@@ -37,15 +38,23 @@ class atom(HasTraits):
         return self.json()
 
     def as_dict(self):
+
         output = {}
-        obj = self.__getstate__()
-        obj.pop("__traits_version__")
+
+        if self._central_object is not None:
+            name = self._central_object
+            obj  = self.get(name)[name]
+
+        else:
+            obj = self.__getstate__()
+            obj.pop("__traits_version__")
+        
         for key,val in obj.items():
             
             if key in self._name_mappings:
                 key = self._name_mappings[key]
-            
-            if atom in val.__class__.__bases__:
+
+            if atom in val.__class__.__mro__:
                 val = val.as_dict()
             if val or val==0:
                 output[key] = val
