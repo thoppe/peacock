@@ -40,20 +40,10 @@ class Swagger(atom):
     #externalDocs = Instance(ExternalDocs)
     #_required=["paths","info","swagger"]
 
-class Parameter(atom):
-    name = Str()
-    description = Str()
-    required = Bool()
-
-    in_   = Enum(["query", "header", "path", "formData", "body"])
-
-    # Type checking depending on _in (future work for validation!)
-
-    #schema = Instance(Schema)
-    type_   = Str()
+class Item(atom):
+    type_   = Enum([None,"string","number","integer","boolean","array","file"])
     format  = Str()
     allowEmptyValue = Bool(None)
-    #items = Instance(Items)
     collectionFormat = Enum([None,"csv","ssb","tsv","pipes","multi"])
     default = Str()
     maximum = Float(None)
@@ -62,19 +52,44 @@ class Parameter(atom):
     exclusiveMinimum = Float(None)
     maxLength = Int(None)
     minLength = Int(None)
-    pattern = Str(None)
+    pattern = Str()
     maxItems = Int(None)
     minItems = Int(None)
     uniqueItems = Bool(None)
     enum = List(Str())
     multipleOf = Float(None)
+
+    _required = ["type_"]
+    _conditional_required = {
+        ("type_",("array",)):["_items"],
+    }
+Item.add_class_trait('items', Instance(Item))
+    
+
+class Parameter(Item):
+    name = Str()
+    description = Str()
+    required = Bool(None)
+
+    in_   = Enum(["query", "header", "path", "formData", "body"])
+    #schema = Instance(Schema)
+        
     _required = ["name","in_"]
     
+    _conditional_required = {
+        ("in_",("body",)):["schema"],
+        ("in_",("query", "header", "path", "formData",)):["type_"],
+    }
+    _conditional_required.update(Item._conditional_required)
+    
+
 #A = License(name=u"test_project",url='http日本')
 X = Info(title="test_project",version="1.0")
 S = Swagger(info=X,in_="query")
-P = Parameter(name="foo",in_="query")
+P = Parameter(name="foo",in_="query",type_="string")
 P.maximum = 20.2
+
 print P
+
 
 

@@ -12,16 +12,23 @@ class atom(HasTraits):
     '''
     
     _required = []
-    _in = None
-    
+    _conditional_required = {}
+
     def __init__(self,*args,**kwargs):
         super(HasTraits,self).__init__(*args,**kwargs)
+
+        for (key,val),req in self._conditional_required.items():
+            if key in kwargs and kwargs[key] in val:
+                self._required += req
 
         for key in self._required:
             if key not in kwargs:
                 msg = "Key '{}' in class {} is required"
                 raise ValueError(msg.format(key,self.__class__.__name__))
-            
+
+        self._required = None
+        self._conditional_required = None
+
     def json(self):
         return json.dumps(self.as_dict())
 
