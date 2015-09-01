@@ -3,9 +3,7 @@ from traits.api import HasTraits
 from traits.api import Instance, Int, Str, Float, List, Enum, Bool
 
 
-
 class atom(HasTraits):
-    
     '''
     Extension of traits that allows for required elements and has a nice print,
     and JSON export.
@@ -14,7 +12,6 @@ class atom(HasTraits):
     _required = []
     _conditional_required = {}
     _name_mappings = {}
-    _central_object = None
 
     def __init__(self,*args,**kwargs):
 
@@ -49,19 +46,16 @@ class atom(HasTraits):
     def __repr__(self):
         return self.json()
 
+    def state(self):
+        obj = self.__getstate__()
+        obj.pop("__traits_version__")
+        return obj
+
     def as_dict(self):
 
         output = {}
 
-        # If it is a central object there is only one term
-        if self._central_object is not None:
-            name = self._central_object
-            obj  = self.get(name)[name]
-
-        # Otherwise grab the main object and drop the metadata
-        else:
-            obj = self.__getstate__()
-            obj.pop("__traits_version__")
+        obj = self.state()
         
         for key,val in obj.items():
 
@@ -79,3 +73,11 @@ class atom(HasTraits):
         
         return output
 
+class unwrapped_atom(atom):
+    '''
+    Class with single trait of type:
+         data = Dict(Str, TRAIT)
+    '''
+    def state(self):
+        obj  = self.get("data")["data"]
+        return obj

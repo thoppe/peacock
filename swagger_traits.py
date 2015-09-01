@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from atom import atom
+from atom import atom, unwrapped_atom
 from traits.api import Instance, Int, Str, Float, List, Enum, Bool, Any, Dict, Either
 
 class License(atom):
@@ -40,13 +40,11 @@ class Tag(atom):
     externalDocs = Instance(ExternalDocs)
     _required = ["name"]
 
-class Scopes(atom):
-    name = Dict(Str(), Str())
-    _central_object = "name"
+class Scopes(unwrapped_atom):
+    data = Dict(Str, Str)
 
-class SecurityRequirement(atom):
-    name = Dict(Str(), List(Str()))
-    _central_object = "name"
+class SecurityRequirement(unwrapped_atom):
+    data = Dict(Str, List(Str))
 
 class SecurityScheme(atom):
     type_ = Enum([None,"basic", "apiKey","oauth2"])
@@ -65,9 +63,8 @@ class SecurityScheme(atom):
     }
     _name_mappings = {"in_":"in", "type_":"type"}
         
-class SecurityDefinitions(atom):
-    name = Dict(Str(), SecurityScheme)
-    _central_object = "name"
+class SecurityDefinitions(unwrapped_atom):
+    data = Dict(Str, SecurityScheme)
         
 class Item(atom):
     type_   = Enum([None,"string","number","integer","boolean","array","file"])
@@ -105,9 +102,8 @@ class Reference(atom):
 class Property(Item):
     pass
 
-class Properties(atom):
-    name = Dict(Str(), Property)
-    _central_object = "name"
+class Properties(unwrapped_atom):
+    data = Dict(Str, Property)
     
 class Schema(atom):
     ref_ = Instance(Reference)
@@ -134,9 +130,8 @@ class Schema(atom):
     _name_mappings.update(Item._name_mappings)
 
 
-class Definitions(atom):
-    name = Dict(Str(), Instance(Schema))
-    _central_object = "name"
+class Definitions(unwrapped_atom):
+    data = Dict(Str, Instance(Schema))
 
 ###############################################################################################
 
@@ -160,22 +155,19 @@ class Parameter(Item):
     _name_mappings = {"in_":"in"}
     _name_mappings.update(Item._name_mappings)
 
-class Parameters(atom):
-    name = Dict(Str(), Parameter)
-    _central_object = "name"
+class Parameters(unwrapped_atom):
+    data = Dict(Str, Parameter)
 
 ###############################################################################################
 
 class Header(Item):
     pass
 
-class Headers(atom):
-    name = Dict(Str(), Header)
-    _central_object = "name"
+class Headers(unwrapped_atom):
+    data = Dict(Str, Header)
 
-class Example(atom):
-    mime_type = Dict(Str(),Dict(Str(),Str()))
-    _central_object = "mime_type"
+class Example(unwrapped_atom):
+    data = Dict(Str,Dict(Str,Str))
 
 class Response(atom):
     description = Str()
@@ -184,9 +176,8 @@ class Response(atom):
     examples = Instance(Example)
     _required = ["description"]
 
-class Responses(atom):
-    name = Dict(Str(), Response)
-    _central_object = "name"
+class Responses(unwrapped_atom):
+    data = Dict(Str, Response)
     
 ###############################################################################################
 class Operation(atom):
@@ -216,9 +207,8 @@ class Path(atom):
     parameters = List(Either(Parameters,Reference))
     _name_mappings = {"ref_":"$ref"}
 
-class Paths(atom):
-    name = Dict(Str(), Path)
-    _central_object = "name"
+class Paths(unwrapped_atom):
+    data = Dict(Str, Path)
 
 ###############################################################################################
 
@@ -242,6 +232,15 @@ class Swagger(atom):
 
 ###############################################################################################
 
+r1 = Response(description="r1")
+r2 = Response(description="r2")
+print r1
+R = Responses(data={"first":r1,"second":r2})
+print R
+#exit()
+
+###############################################################################################
+
 info = Info(**
     {
     "version": "1.0.0",
@@ -256,17 +255,17 @@ info = Info(**
 item = Item(ref_ ="#/definitions/pet")
 R = Response(description="A list of pets",
              schema=Schema(type_="array",items=item))
-get_pet = Operation(responses=Responses(name={"200":R}))
-P = Paths(name={"/pets":Path(get=get_pet)})
+get_pet = Operation(responses=Responses(data={"200":R}))
+P = Paths(data={"/pets":Path(get=get_pet)})
 
 pet = Schema(type_="object",required=["id","name"],
-             properties=Properties(name={
+             properties=Properties(data={
                  "id"  :Property(type="integer",format="int64"),
                  "name":Property(type="string"),
                  "tag":Property(type="string"),
                  }))
 
-defs = Definitions(name={"pet":pet})
+defs = Definitions(data={"pet":pet})
 S = Swagger(info=info,paths=P, definitions=defs)
 print S
 
