@@ -13,6 +13,7 @@ class atom(HasTraits):
     
     _required = []
     _conditional_required = {}
+    _name_mappings = {}
 
     def __init__(self,*args,**kwargs):
         super(HasTraits,self).__init__(*args,**kwargs)
@@ -40,7 +41,10 @@ class atom(HasTraits):
         obj = self.__getstate__()
         obj.pop("__traits_version__")
         for key,val in obj.items():
-            key = key.rstrip('_')
+            
+            if key in self._name_mappings:
+                key = self._name_mappings[key]
+            
             if atom in val.__class__.__bases__:
                 val = val.as_dict()
             if val or val==0:
