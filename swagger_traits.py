@@ -40,6 +40,34 @@ class Tag(atom):
     externalDocs = Instance(ExternalDocs)
     _required = ["name"]
 
+class Scopes(atom):
+    name = Dict(Str(), Str())
+    _central_object = "name"
+
+class SecurityRequirement(atom):
+    name = Dict(Str(), List(Str()))
+    _central_object = "name"
+
+class SecurityScheme(atom):
+    type_ = Enum([None,"basic", "apiKey","oauth2"])
+    description = Str()
+    name = Str()
+    in_ = Enum([None,"query","header"])
+    flow = Enum([None, "implicit", "password", "application", "accessCode"])
+    authorizationUrl = Str()
+    tokenUrl = Str()
+    scopes = Instance(Scopes)
+
+    _required = ["type_",]
+    _conditional_required = {
+        ("type_",("apiKey",)):["name","in_"],
+        ("type_",("apiKey",)):["flow","authorizationUrl","tokenUrl","scopes"],
+    }
+        
+class SecurityDefinitions(atom):
+    name = Dict(Str(), SecurityScheme)
+    _central_object = "name"
+        
 class Swagger(atom):
     swagger = Str(2.0)
     info = Instance(Info)
@@ -52,7 +80,7 @@ class Swagger(atom):
     #definitions = Instance(Definitions)
     #parameters = Instance(Parameters)
     #responses = Instance(Responses)
-    #securityDefinitions = Instance(SecurityDefinitions)
+    securityDefinitions = Instance(SecurityDefinitions)
     #security = Instance(security)
     tags = Instance(Tag)
     externalDocs = Instance(ExternalDocs)
@@ -131,13 +159,12 @@ class Header(Item):
     pass
 
 class Headers(atom):
-    headers = Dict(Str(), Header)
-    _central_object = "headers"
+    name = Dict(Str(), Header)
+    _central_object = "name"
 
 class Example(atom):
     mime_type = Dict(Str(),Dict(Str(),Str()))
     _central_object = "mime_type"
-
 
 #A = License(name=u"test_project",url='http日本')
 X = Info(title="test_project",version="1.0")
@@ -167,7 +194,12 @@ headers = {
 }
 
 
-print type(Headers(headers=headers).as_dict()["X-Rate-Limit-Reset"])
-print Headers(headers=headers)
+print Headers(name=headers)
+
+data = {"pet_store":["write:pets","read:pets"]}
+X = SecurityRequirement(name=data)
+print X
+exit()
+    
 
 
