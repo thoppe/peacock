@@ -42,14 +42,39 @@ class Swagger(atom):
 
 class Parameter(atom):
     name = Str()
-    in_   = Enum(["query", "header", "path", "formData", "body"])
     description = Str()
     required = Bool()
-    _required = ["name","in"]
+
+    in_   = Enum(["query", "header", "path", "formData", "body"])
+
+    # Type checking depending on _in (future work for validation!)
+
+    #schema = Instance(Schema)
+    type_   = Str()
+    format  = Str()
+    allowEmptyValue = Bool(None)
+    #items = Instance(Items)
+    collectionFormat = Enum([None,"csv","ssb","tsv","pipes","multi"])
+    default = Str()
+    maximum = Float(None)
+    exclusiveMaximum = Bool(None)
+    minimum = Float(None)
+    exclusiveMinimum = Float(None)
+    maxLength = Int(None)
+    minLength = Int(None)
+    pattern = Str(None)
+    maxItems = Int(None)
+    minItems = Int(None)
+    uniqueItems = Bool(None)
+    enum = List(Str())
+    multipleOf = Float(None)
+    _required = ["name","in_"]
     
 #A = License(name=u"test_project",url='http日本')
 X = Info(title="test_project",version="1.0")
 S = Swagger(info=X,in_="query")
-print S
+P = Parameter(name="foo",in_="query")
+P.maximum = 20.2
+print P
 
 
