@@ -153,6 +153,21 @@ class Example(atom):
 
 ###############################################################################################
 
+class Response(atom):
+    description = Str()
+    schema = Instance(Schema)
+    headers = Instance(Headers)
+    examples = Instance(Example)
+    _required = ["description"]
+
+class Responses(atom):
+    name = Dict(Str(), Response)
+    _central_object = "name"
+
+    
+
+###############################################################################################
+
 class Swagger(atom):
     swagger = Str(2.0)
     info = Instance(Info)
@@ -164,7 +179,7 @@ class Swagger(atom):
     #paths = Instance(Paths)
     definitions = Instance(Definitions)
     #parameters = Instance(Parameters)
-    #responses = Instance(Responses)
+    responses = Instance(Responses)
     securityDefinitions = Instance(SecurityDefinitions)
     security = List(Instance(SecurityRequirement))
     tags = Instance(Tag)
