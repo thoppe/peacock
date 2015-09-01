@@ -17,6 +17,14 @@ class atom(HasTraits):
     _central_object = None
 
     def __init__(self,*args,**kwargs):
+
+        # Check if any kwargs were added that are not within the spec
+        defined_keys = self.__getstate__().keys()
+        for key in kwargs:
+            if key not in defined_keys:
+                msg = "Key '{}' not defined in class {}."
+                raise ValueError(msg.format(key,self.__class__.__name__))
+
         super(HasTraits,self).__init__(*args,**kwargs)
 
         for (key,val),req in self._conditional_required.items():
@@ -25,7 +33,7 @@ class atom(HasTraits):
 
         for key in self._required:
             if key not in kwargs:
-                msg = "Key '{}' in class {} is required"
+                msg = "Key '{}' in class {} is required."
                 raise ValueError(msg.format(key,self.__class__.__name__))
 
         self._required = None

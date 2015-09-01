@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from atom import atom
-from traits.api import Instance, Int, Str, Float, List, Enum, Bool, Any, Dict
+from traits.api import Instance, Int, Str, Float, List, Enum, Bool, Any, Dict, Either
 
 class License(atom):
     name = Str()
@@ -94,8 +94,13 @@ class Item(atom):
     
 Item.add_class_trait('items', Instance(Item))
 
-class Schema(Item):
+class Reference(atom):
     ref_ = Str()
+    _name_mappings = {"ref_":"$ref"}
+    _required = ["ref_"]
+
+class Schema(Item):
+    ref_ = Instance(Reference)
     title = Str()
     description = Str()
     required = Bool(None)
@@ -112,7 +117,7 @@ class Schema(Item):
     xml = Instance(XMLObject)
     externalDocs = Instance(ExternalDocs)
     example = Any()
-
+    
     _name_mappings = {"ref_":"$ref"}
     _name_mappings.update(Item._name_mappings)
 
@@ -170,18 +175,49 @@ class Responses(atom):
     name = Dict(Str(), Response)
     _central_object = "name"
     
+###############################################################################################
+class Operation(atom):
+    tags = List(Str())
+    summary = Str()
+    description = Str()
+    externalDocs = Instance(ExternalDocs)
+    operationId = Str()
+    consumes = List(Str())
+    produces = List(Str())
+    parameters = List(Either(Parameters,Reference))
+    responses = Instance(Responses)
+    schemes = Enum([None,"http", "https", "ws", "wss"])
+    deprecated = Bool(None)
+    security = Instance(SecurityRequirement)
+    _required = ["responses"]
+
+class Path(atom):
+    ref_ = Instance(Reference)
+    get = Instance(Operation)
+    put = Instance(Operation)
+    post = Instance(Operation)
+    delete = Instance(Operation)
+    options = Instance(Operation)
+    head = Instance(Operation)
+    patch = Instance(Operation)
+    parameters = List(Either(Parameters,Reference))
+    _name_mappings = {"ref_":"$ref"}
+
+class Paths(atom):
+    name = Dict(Str(), Path)
+    _central_object = "name"
 
 ###############################################################################################
 
 class Swagger(atom):
-    swagger = Str(2.0)
+    swagger = Enum([2.0])
     info = Instance(Info)
     host = Str()
     basePath = Str()
     schemes = Enum([None,"http", "https", "ws", "wss"])
     consumes = List(Str())
     produces = List(Str())
-    #paths = Instance(Paths)
+    paths = Instance(Paths)
     definitions = Instance(Definitions)
     parameters = Instance(Parameters)
     responses = Instance(Responses)
@@ -189,17 +225,20 @@ class Swagger(atom):
     security = List(Instance(SecurityRequirement))
     tags = Instance(Tag)
     externalDocs = Instance(ExternalDocs)
-    #_required=["paths","info","swagger"]
+    _required=["paths","info"]
 
 ###############################################################################################
 
-
-#A = License(name=u"test_project",url='http日本')
+px = Path()
+P  = Paths(name={"dog":px})
+print P
 X = Info(title="test_project",version="1.0")
-S = Swagger(info=X,in_="query")
+S = Swagger(info=X,paths=P)
+print S
+
+exit()
 P = Parameter(name="foo",in_="query",type_="string")
 P.maximum = 20.2
-
 EX = Example(mime_type={"application/json":{'name':'puma'}})
 print Schema(type_="integer")
 print S
