@@ -115,13 +115,13 @@ class Schema(atom):
     description = Str()
     required = List(Str())
     type_ = Str()
-    
-    #maxProperties = Str()
-    #minProperties = Str()
-    #items = List(Instance(Item))
+
     properties = Instance(Properties)
     #allOf = ???
     #additionalProperties = ???
+    #maxProperties = Str()
+    #minProperties = Str()
+    #items = List(Instance(Item))
 
     # Further schema documentation
     discriminator = Str()
@@ -242,7 +242,6 @@ class Swagger(atom):
 
 ###############################################################################################
 
-
 info = Info(**
     {
     "version": "1.0.0",
@@ -259,7 +258,6 @@ R = Response(description="A list of pets",
              schema=Schema(type_="array",items=item))
 get_pet = Operation(responses=Responses(name={"200":R}))
 P = Paths(name={"/pets":Path(get=get_pet)})
-
 
 pet = Schema(type_="object",required=["id","name"],
              properties=Properties(name={
