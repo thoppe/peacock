@@ -232,13 +232,6 @@ class Swagger(atom):
 
 ###############################################################################################
 
-r1 = Response(description="r1")
-r2 = Response(description="r2")
-R = Responses({"second":r2}, first=r1)
-
-
-###############################################################################################
-
 info = Info(
     {
     "version": "1.0.0",
@@ -250,7 +243,8 @@ info = Info(
     }
 )
 
-item = Item(ref_ ="#/definitions/pet")
+item = Item(ref_="#/definitions/pet")
+
 R = Response(description="A list of pets",
              schema=Schema(type_="array",items=item))
 get_pet = Operation(responses=Responses({"200":R}))
@@ -265,5 +259,6 @@ pet = Schema(type_="object",required=["id","name"],
 
 defs = Definitions(pet=pet)
 S = Swagger(info=info,paths=P, definitions=defs)
+
 print S
 
