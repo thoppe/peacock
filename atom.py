@@ -18,6 +18,8 @@ class atom(HasTraits):
 
     def __init__(self,*args,**kwargs):
 
+        super(HasTraits,self).__init__(*args,**kwargs)
+
         # Check if any kwargs were added that are not within the spec
         defined_keys = self.__getstate__().keys()
         for key in kwargs:
@@ -25,7 +27,7 @@ class atom(HasTraits):
                 msg = "Key '{}' not defined in class {}."
                 raise ValueError(msg.format(key,self.__class__.__name__))
 
-        super(HasTraits,self).__init__(*args,**kwargs)
+
 
         for (key,val),req in self._conditional_required.items():
             if key in kwargs and kwargs[key] in val:
@@ -40,7 +42,7 @@ class atom(HasTraits):
         self._conditional_required = None
 
     def json(self):
-        return json.dumps(self.as_dict())
+        return json.dumps(self.as_dict(),indent=2)
 
     def __repr__(self):
         return self.json()

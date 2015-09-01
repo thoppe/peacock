@@ -63,6 +63,7 @@ class SecurityScheme(atom):
         ("type_",("apiKey",)):["name","in_"],
         ("type_",("apiKey",)):["flow","authorizationUrl","tokenUrl","scopes"],
     }
+    _name_mappings = {"in_":"in", "type_":"type"}
         
 class SecurityDefinitions(atom):
     name = Dict(Str(), SecurityScheme)
@@ -86,9 +87,10 @@ class Item(atom):
     enum = List(Str())
     multipleOf = Float(None)
 
-    _required = ["type_"]
+    #_required = ["type_"]
+    
     _conditional_required = {
-        ("type_",("array",)):["_items"],
+        ("type_",("array",)):["items"],
     }
     _name_mappings = {"type_":"type"}
     
@@ -99,15 +101,25 @@ class Reference(atom):
     _name_mappings = {"ref_":"$ref"}
     _required = ["ref_"]
 
-class Schema(Item):
+
+class Property(Item):
+    pass
+
+class Properties(atom):
+    name = Dict(Str(), Property)
+    _central_object = "name"
+    
+class Schema(atom):
     ref_ = Instance(Reference)
     title = Str()
     description = Str()
-    required = Bool(None)
+    required = List(Str())
+    type_ = Str()
+    
     #maxProperties = Str()
     #minProperties = Str()
     #items = List(Instance(Item))
-    #properties = ???
+    properties = Instance(Properties)
     #allOf = ???
     #additionalProperties = ???
 
@@ -120,6 +132,7 @@ class Schema(Item):
     
     _name_mappings = {"ref_":"$ref"}
     _name_mappings.update(Item._name_mappings)
+
 
 class Definitions(atom):
     name = Dict(Str(), Instance(Schema))
@@ -186,17 +199,17 @@ class Operation(atom):
     produces = List(Str())
     parameters = List(Either(Parameters,Reference))
     responses = Instance(Responses)
-    schemes = Enum([None,"http", "https", "ws", "wss"])
+    schemes = List(Enum([None,"http", "https", "ws", "wss"]))
     deprecated = Bool(None)
     security = Instance(SecurityRequirement)
     _required = ["responses"]
 
 class Path(atom):
     ref_ = Instance(Reference)
-    get = Instance(Operation)
-    put = Instance(Operation)
+    get  = Instance(Operation)
+    put  = Instance(Operation)
     post = Instance(Operation)
-    delete = Instance(Operation)
+    delete  = Instance(Operation)
     options = Instance(Operation)
     head = Instance(Operation)
     patch = Instance(Operation)
@@ -229,44 +242,33 @@ class Swagger(atom):
 
 ###############################################################################################
 
-px = Path()
-P  = Paths(name={"dog":px})
-print P
-X = Info(title="test_project",version="1.0")
-S = Swagger(info=X,paths=P)
+
+info = Info(**
+    {
+    "version": "1.0.0",
+    "title": "Swagger Petstore",
+    "description": "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact" : Contact(name="Swagger API Team"),
+    "license" : License(name="MIT")
+    }
+)
+
+item = Item(ref_ ="#/definitions/pet")
+R = Response(description="A list of pets",
+             schema=Schema(type_="array",items=item))
+get_pet = Operation(responses=Responses(name={"200":R}))
+P = Paths(name={"/pets":Path(get=get_pet)})
+
+
+pet = Schema(type_="object",required=["id","name"],
+             properties=Properties(name={
+                 "id"  :Property(type="integer",format="int64"),
+                 "name":Property(type="string"),
+                 "tag":Property(type="string"),
+                 }))
+
+defs = Definitions(name={"pet":pet})
+S = Swagger(info=info,paths=P, definitions=defs)
 print S
-
-exit()
-P = Parameter(name="foo",in_="query",type_="string")
-P.maximum = 20.2
-EX = Example(mime_type={"application/json":{'name':'puma'}})
-print Schema(type_="integer")
-print S
-print P
-
-    
-headers = {
-    "X-Rate-Limit-Limit": Header(**{
-        "description": "The number of allowed requests in the current period",
-        "type_": "integer"
-    }),
-    "X-Rate-Limit-Remaining": Header(**{
-        "description": "The number of remaining requests in the current period",
-        "type_": "integer"
-    }),
-    "X-Rate-Limit-Reset": Header(**{
-        "description": "The number of seconds left in the current period",
-        "type_": "integer"
-    })
-}
-
-
-print Headers(name=headers)
-
-data = {"pet_store":["write:pets","read:pets"]}
-X = SecurityRequirement(name=data)
-print X
-exit()
-    
-
 
