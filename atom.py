@@ -13,9 +13,11 @@ class atom(HasTraits):
     _conditional_required = {}
     _name_mappings = {}
 
-    def __init__(self,*args,**kwargs):
-
-        super(HasTraits,self).__init__(*args,**kwargs)
+    def __init__(self,input_dict=None,**kwargs):
+        if input_dict is not None:
+            kwargs.update(input_dict)
+        
+        super(HasTraits,self).__init__(**kwargs)
 
         # Check if any kwargs were added that are not within the spec
         defined_keys = self.__getstate__().keys()
@@ -73,11 +75,19 @@ class atom(HasTraits):
         
         return output
 
-class unwrapped_atom(atom):
+class simple_atom(atom):
     '''
     Class with single trait of type:
          data = Dict(Str, TRAIT)
+    Simplified init that allows a dictionary to be passed in or keywords.
     '''
+    def __init__(self,input_dict=None,**input_kwargs):
+        data = {}
+        if input_dict is not None:
+            data.update(input_dict)
+        data.update(input_kwargs)
+        super(atom,self).__init__(data=data)
+    
     def state(self):
         obj  = self.get("data")["data"]
         return obj

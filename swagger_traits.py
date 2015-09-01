@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from atom import atom, unwrapped_atom
+from atom import atom, simple_atom
 from traits.api import Instance, Int, Str, Float, List, Enum, Bool, Any, Dict, Either
 
 class License(atom):
@@ -40,10 +40,10 @@ class Tag(atom):
     externalDocs = Instance(ExternalDocs)
     _required = ["name"]
 
-class Scopes(unwrapped_atom):
+class Scopes(simple_atom):
     data = Dict(Str, Str)
 
-class SecurityRequirement(unwrapped_atom):
+class SecurityRequirement(simple_atom):
     data = Dict(Str, List(Str))
 
 class SecurityScheme(atom):
@@ -63,7 +63,7 @@ class SecurityScheme(atom):
     }
     _name_mappings = {"in_":"in", "type_":"type"}
         
-class SecurityDefinitions(unwrapped_atom):
+class SecurityDefinitions(simple_atom):
     data = Dict(Str, SecurityScheme)
         
 class Item(atom):
@@ -102,7 +102,7 @@ class Reference(atom):
 class Property(Item):
     pass
 
-class Properties(unwrapped_atom):
+class Properties(simple_atom):
     data = Dict(Str, Property)
     
 class Schema(atom):
@@ -130,7 +130,7 @@ class Schema(atom):
     _name_mappings.update(Item._name_mappings)
 
 
-class Definitions(unwrapped_atom):
+class Definitions(simple_atom):
     data = Dict(Str, Instance(Schema))
 
 ###############################################################################################
@@ -155,7 +155,7 @@ class Parameter(Item):
     _name_mappings = {"in_":"in"}
     _name_mappings.update(Item._name_mappings)
 
-class Parameters(unwrapped_atom):
+class Parameters(simple_atom):
     data = Dict(Str, Parameter)
 
 ###############################################################################################
@@ -163,10 +163,10 @@ class Parameters(unwrapped_atom):
 class Header(Item):
     pass
 
-class Headers(unwrapped_atom):
+class Headers(simple_atom):
     data = Dict(Str, Header)
 
-class Example(unwrapped_atom):
+class Example(simple_atom):
     data = Dict(Str,Dict(Str,Str))
 
 class Response(atom):
@@ -176,7 +176,7 @@ class Response(atom):
     examples = Instance(Example)
     _required = ["description"]
 
-class Responses(unwrapped_atom):
+class Responses(simple_atom):
     data = Dict(Str, Response)
     
 ###############################################################################################
@@ -207,7 +207,7 @@ class Path(atom):
     parameters = List(Either(Parameters,Reference))
     _name_mappings = {"ref_":"$ref"}
 
-class Paths(unwrapped_atom):
+class Paths(simple_atom):
     data = Dict(Str, Path)
 
 ###############################################################################################
@@ -234,14 +234,12 @@ class Swagger(atom):
 
 r1 = Response(description="r1")
 r2 = Response(description="r2")
-print r1
-R = Responses(data={"first":r1,"second":r2})
-print R
-#exit()
+R = Responses({"second":r2}, first=r1)
+
 
 ###############################################################################################
 
-info = Info(**
+info = Info(
     {
     "version": "1.0.0",
     "title": "Swagger Petstore",
@@ -255,17 +253,17 @@ info = Info(**
 item = Item(ref_ ="#/definitions/pet")
 R = Response(description="A list of pets",
              schema=Schema(type_="array",items=item))
-get_pet = Operation(responses=Responses(data={"200":R}))
-P = Paths(data={"/pets":Path(get=get_pet)})
+get_pet = Operation(responses=Responses({"200":R}))
+P = Paths({"/pets":Path(get=get_pet)})
 
 pet = Schema(type_="object",required=["id","name"],
-             properties=Properties(data={
-                 "id"  :Property(type="integer",format="int64"),
-                 "name":Property(type="string"),
-                 "tag":Property(type="string"),
-                 }))
+             properties=Properties(
+                 id=Property(type="integer",format="int64"),
+                 name=Property(type="string"),
+                 tag=Property(type="string"),
+                ))
 
-defs = Definitions(data={"pet":pet})
+defs = Definitions(pet=pet)
 S = Swagger(info=info,paths=P, definitions=defs)
 print S
 
