@@ -120,6 +120,8 @@ class Definitions(atom):
     name = Dict(Str(), Instance(Schema))
     _central_object = "name"
 
+###############################################################################################
+
 class Parameter(Item):
     name = Str()
     description = Str()
@@ -140,6 +142,12 @@ class Parameter(Item):
     _name_mappings = {"in_":"in"}
     _name_mappings.update(Item._name_mappings)
 
+class Parameters(atom):
+    name = Dict(Str(), Parameter)
+    _central_object = "name"
+
+###############################################################################################
+
 class Header(Item):
     pass
 
@@ -151,8 +159,6 @@ class Example(atom):
     mime_type = Dict(Str(),Dict(Str(),Str()))
     _central_object = "mime_type"
 
-###############################################################################################
-
 class Response(atom):
     description = Str()
     schema = Instance(Schema)
@@ -163,7 +169,6 @@ class Response(atom):
 class Responses(atom):
     name = Dict(Str(), Response)
     _central_object = "name"
-
     
 
 ###############################################################################################
@@ -178,7 +183,7 @@ class Swagger(atom):
     produces = List(Str())
     #paths = Instance(Paths)
     definitions = Instance(Definitions)
-    #parameters = Instance(Parameters)
+    parameters = Instance(Parameters)
     responses = Instance(Responses)
     securityDefinitions = Instance(SecurityDefinitions)
     security = List(Instance(SecurityRequirement))
