@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from atom import atom, simple_atom
-from traits.api import Instance, Int, Str, Float, List, Enum, Bool, Any, Dict, Either
+from traits.api import Instance, Int, Str, Float, List, Enum
+from traits.api import Bool, Any, Dict, Either
 
 class License(atom):
     name = Str()
@@ -50,7 +51,7 @@ class SecurityScheme(atom):
     type_ = Enum([None,"basic", "apiKey","oauth2"])
     description = Str()
     name = Str()
-    in_ = Enum([None,"query","header"])
+    in_  = Enum([None,"query","header"])
     flow = Enum([None, "implicit", "password", "application", "accessCode"])
     authorizationUrl = Str()
     tokenUrl = Str()
@@ -59,7 +60,7 @@ class SecurityScheme(atom):
     _required = ["type_",]
     _conditional_required = {
         ("type_",("apiKey",)):["name","in_"],
-        ("type_",("apiKey",)):["flow","authorizationUrl","tokenUrl","scopes"],
+        ("type_",("oauth2",)):["flow","authorizationUrl","tokenUrl","scopes"],
     }
     _name_mappings = {"in_":"in", "type_":"type"}
         
@@ -67,6 +68,7 @@ class SecurityDefinitions(simple_atom):
     data = Dict(Str, SecurityScheme)
         
 class Item(atom):
+    ref_    = Str()
     type_   = Enum([None,"string","number","integer","boolean","array","file"])
     format  = Str()
     allowEmptyValue = Bool(None)
@@ -89,7 +91,8 @@ class Item(atom):
     _conditional_required = {
         ("type_",("array",)):["items"],
     }
-    _name_mappings = {"type_":"type"}
+    _name_mappings = {"type_":"type",
+                      "ref_":"$ref"}
     
 Item.add_class_trait('items', Instance(Item))
 
@@ -133,7 +136,7 @@ class Schema(atom):
 class Definitions(simple_atom):
     data = Dict(Str, Instance(Schema))
 
-###############################################################################################
+###############################################################################
 
 class Parameter(Item):
     name = Str()
@@ -158,7 +161,7 @@ class Parameter(Item):
 class Parameters(simple_atom):
     data = Dict(Str, Parameter)
 
-###############################################################################################
+###############################################################################
 
 class Header(Item):
     pass
@@ -178,8 +181,9 @@ class Response(atom):
 
 class Responses(simple_atom):
     data = Dict(Str, Response)
-    
-###############################################################################################
+
+###############################################################################
+
 class Operation(atom):
     tags = List(Str())
     summary = Str()
@@ -190,7 +194,7 @@ class Operation(atom):
     produces = List(Str())
     parameters = List(Either(Parameters,Reference))
     responses = Instance(Responses)
-    schemes = List(Enum([None,"http", "https", "ws", "wss"]))
+    schemes   = List(Enum([None,"http", "https", "ws", "wss"]))
     deprecated = Bool(None)
     security = Instance(SecurityRequirement)
     _required = ["responses"]
@@ -210,14 +214,14 @@ class Path(atom):
 class Paths(simple_atom):
     data = Dict(Str, Path)
 
-###############################################################################################
+###############################################################################
 
 class Swagger(atom):
-    swagger = Enum([2.0])
+    swagger = Enum(["2.0"])
     info = Instance(Info)
     host = Str()
     basePath = Str()
-    schemes = Enum([None,"http", "https", "ws", "wss"])
+    schemes = List(Enum([None,"http", "https", "ws", "wss"]))
     consumes = List(Str())
     produces = List(Str())
     paths = Instance(Paths)
@@ -230,35 +234,4 @@ class Swagger(atom):
     externalDocs = Instance(ExternalDocs)
     _required=["paths","info"]
 
-###############################################################################################
-
-info = Info(
-    {
-    "version": "1.0.0",
-    "title": "Swagger Petstore",
-    "description": "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
-    "termsOfService": "http://swagger.io/terms/",
-    "contact" : Contact(name="Swagger API Team"),
-    "license" : License(name="MIT")
-    }
-)
-
-item = Item(ref_="#/definitions/pet")
-
-R = Response(description="A list of pets",
-             schema=Schema(type_="array",items=item))
-get_pet = Operation(responses=Responses({"200":R}))
-P = Paths({"/pets":Path(get=get_pet)})
-
-pet = Schema(type_="object",required=["id","name"],
-             properties=Properties(
-                 id=Property(type="integer",format="int64"),
-                 name=Property(type="string"),
-                 tag=Property(type="string"),
-                ))
-
-defs = Definitions(pet=pet)
-S = Swagger(info=info,paths=P, definitions=defs)
-
-print S
-
+###############################################################################
