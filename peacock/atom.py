@@ -68,6 +68,10 @@ class atom(HasTraits):
             # If the child is another atom (inherited) then recursively run this
             if atom in val.__class__.__mro__:
                 val = val.as_dict()
+
+            # Skip if value is hidden
+            if key[0] == "_":
+                continue
                 
             # Always show the output for any True items or numbers set to zero
             if val or val==0 or key in self._required:

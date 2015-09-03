@@ -5,5 +5,6 @@ def commit():
     local("git status")
     local("git push")
 
-
+def test():
+    local("python petstore_minimal.py")
 

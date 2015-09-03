@@ -8,7 +8,25 @@ def minimal_peacock():
     return peacock.Swagger(info=info,
                            paths=peacock.Paths())
 
-print minimal_peacock()
+
+props = {}
+sample_data = {"ping":0,"pong":"foo"}
+
+type_lookup = {
+    int:"integer",
+    float:"number",
+    bool:"boolean",
+    str:"string",
+    unicode:"string",
+}
+
+for name,val in sample_data.items():
+    obj_type = type_lookup[type(val)]
+    props[name] = peacock.Parameter(name=name,
+                                    in_="query",
+                                    type_=obj_type)
+
+print props["ping"]
 exit()
 
 desc = "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification"
