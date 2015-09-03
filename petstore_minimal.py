@@ -1,10 +1,12 @@
-from peacock.swagger_traits import *
+from peacock import *
+
+desc = "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification"
 
 info = Info(
     {
     "version": "1.0.0",
     "title": "Swagger Petstore",
-    "description": "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
+    "description": desc,
     "termsOfService": "http://swagger.io/terms/",
     "contact" : Contact(name="Swagger API Team"),
     "license" : License(name="MIT")
@@ -41,7 +43,7 @@ args = {
 }
 
 S = Swagger(args, info=info,paths=P,definitions=defs)
-
+print S
 
 if __name__ == "__main__":
     import json
