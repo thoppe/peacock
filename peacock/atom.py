@@ -38,8 +38,8 @@ class atom(HasTraits):
                 raise ValueError(msg.format(key,self.__class__.__name__))
 
         # Erase the values
-        self._required = None
-        self._conditional_required = None
+        #self._required = None
+        #self._conditional_required = None
 
 
     def json(self):
@@ -70,7 +70,7 @@ class atom(HasTraits):
                 val = val.as_dict()
                 
             # Always show the output for any True items or numbers set to zero
-            if val or val==0:
+            if val or val==0 or key in self._required:
                 output[key] = val
         
         return output

@@ -1,4 +1,15 @@
+import peacock
 from peacock import *
+
+
+def minimal_peacock():
+    ''' Return a minimal working swagger file object (peacock) '''
+    info = peacock.Info(title="",version="")
+    return peacock.Swagger(info=info,
+                           paths=peacock.Paths())
+
+print minimal_peacock()
+exit()
 
 desc = "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification"
 
