@@ -1,13 +1,17 @@
 import peacock
 from peacock import *
 
-
 def minimal_peacock():
     ''' Return a minimal working swagger file object (peacock) '''
-    info = peacock.Info(title="",version="")
-    return peacock.Swagger(info=info,
-                           paths=peacock.Paths())
+    data ={"version":"1.0","title":"foo"}
+    info = peacock.Info(data)
+    return info
+    sw = peacock.Swagger()
+    sw.paths = peacock.Paths()
+    sw.info = info
+    return sw
 
+p = minimal_peacock()
 
 props = {}
 sample_data = {"ping":0,"pong":"foo"}
@@ -27,7 +31,6 @@ for name,val in sample_data.items():
                                     type_=obj_type)
 
 print props["ping"]
-exit()
 
 desc = "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification"
 

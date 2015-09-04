@@ -1,43 +1,54 @@
 # -*- coding: utf-8 -*-
 
 from atom import atom, simple_atom
-from traits.api import Instance, Int, Str, Float, List, Enum
-from traits.api import Bool, Any, Dict, Either
+from traits.api import Int, Str, Float, List, Enum
+from traits.api import Bool, Any, Dict, Either, This
+from traits.api import Instance
+
+# Use the default of None for all basic types
+Str  = Str(None)
+Bool = Bool(None)
+Int  = Int(None)
+Float= Float(None)
+
+# Monkey-patch instance to create a default type
+#def Instance(trait_type,*args,**kwargs):
+#    return traits.api.Instance(trait_type,args=args,kwargs=kwargs)
 
 class License(atom):
-    name = Str()
-    url  = Str()
+    name = Str
+    url  = Str
     _required = ["name"]
 
 class Contact(atom):
-    name = Str()
-    url  = Str()
-    emai = Str()
+    name  = Str
+    url   = Str
+    email = Str
 
 class Info(atom):
-    title   = Str()
-    version = Str()
-    description    = Str()
-    termsOfService = Str()
+    title   = Str
+    version = Str
+    description    = Str
+    termsOfService = Str
     license = Instance(License)
     contact = Instance(Contact)
     _required = ["title", "version"]
 
 class XMLObject(atom):
-    name = Str()
-    namespace = Str()
-    prefix = Str()
-    attribute = Bool(False)
-    wrapped   = Bool(None)
+    name = Str
+    namespace = Str
+    prefix = Str
+    attribute = Bool
+    wrapped   = Bool
 
 class ExternalDocs(atom):
-    description = Str()
-    url = Str()
+    description = Str
+    url = Str
     _required = ["url"]
 
 class Tag(atom):
-    name = Str()
-    description = Str()
+    name = Str
+    description = Str
     externalDocs = Instance(ExternalDocs)
     _required = ["name"]
 
@@ -49,12 +60,12 @@ class SecurityRequirement(simple_atom):
 
 class SecurityScheme(atom):
     type_ = Enum([None,"basic", "apiKey","oauth2"])
-    description = Str()
-    name = Str()
+    description = Str
+    name = Str
     in_  = Enum([None,"query","header"])
     flow = Enum([None, "implicit", "password", "application", "accessCode"])
-    authorizationUrl = Str()
-    tokenUrl = Str()
+    authorizationUrl = Str
+    tokenUrl = Str
     scopes = Instance(Scopes)
 
     _required = ["type_",]
@@ -68,23 +79,23 @@ class SecurityDefinitions(simple_atom):
     data = Dict(Str, SecurityScheme)
         
 class Item(atom):
-    ref_    = Str()
+    ref_    = Str
     type_   = Enum([None,"string","number","integer","boolean","array","file"])
-    format  = Str()
-    allowEmptyValue = Bool(None)
-    default = Str()
-    maximum = Float(None)
-    exclusiveMaximum = Bool(None)
-    minimum = Float(None)
-    exclusiveMinimum = Float(None)
-    maxLength = Int(None)
-    minLength = Int(None)
-    pattern = Str()
-    maxItems = Int(None)
-    minItems = Int(None)
-    uniqueItems = Bool(None)
-    enum = List(Str())
-    multipleOf = Float(None)
+    format  = Str
+    allowEmptyValue = Bool
+    default = Str
+    maximum = Float
+    exclusiveMaximum = Bool
+    minimum = Float
+    exclusiveMinimum = Float
+    maxLength = Int
+    minLength = Int
+    pattern = Str
+    maxItems = Int
+    minItems = Int
+    uniqueItems = Bool
+    enum = List(Str)
+    multipleOf = Float
 
     #_required = ["type_"]
     
@@ -93,11 +104,13 @@ class Item(atom):
     }
     _name_mappings = {"type_":"type",
                       "ref_":"$ref"}
+
+    items = Instance(This)
     
-Item.add_class_trait('items', Instance(Item))
+#Item.add_class_trait('items', Instance(Item))
 
 class Reference(atom):
-    ref_ = Str()
+    ref_ = Str
     _name_mappings = {"ref_":"$ref"}
     _required = ["ref_"]
 
@@ -110,24 +123,24 @@ class Properties(simple_atom):
     
 class Schema(atom):
     ref_ = Instance(Reference)
-    title = Str()
-    description = Str()
-    required = List(Str())
-    type_ = Str()
+    title = Str
+    description = Str
+    required = List(Str)
+    type_ = Str
 
     properties = Instance(Properties)
     #allOf = ???
     #additionalProperties = ???
-    #maxProperties = Str()
-    #minProperties = Str()
-    #items = List(Instance(Item))
+    #maxProperties = Str
+    #minProperties = Str
+    items = Instance(Item)
 
     # Further schema documentation
-    discriminator = Str()
-    readOnly = Bool(None)
+    discriminator = Str
+    readOnly = Bool
     xml = Instance(XMLObject)
     externalDocs = Instance(ExternalDocs)
-    example = Any()
+    example = Any
     
     _name_mappings = {"ref_":"$ref"}
     _name_mappings.update(Item._name_mappings)
@@ -139,9 +152,9 @@ class Definitions(simple_atom):
 ###############################################################################
 
 class Parameter(Item):
-    name = Str()
-    description = Str()
-    required = Bool(None)
+    name = Str
+    description = Str
+    required = Bool
     collectionFormat = Enum([None,"csv","ssb","tsv","pipes","multi"])
 
     in_   = Enum(["query", "header", "path", "formData", "body"])
@@ -173,7 +186,7 @@ class Example(simple_atom):
     data = Dict(Str,Dict(Str,Str))
 
 class Response(atom):
-    description = Str()
+    description = Str
     schema = Instance(Schema)
     headers = Instance(Headers)
     examples = Instance(Example)
@@ -185,17 +198,17 @@ class Responses(simple_atom):
 ###############################################################################
 
 class Operation(atom):
-    tags = List(Str())
-    summary = Str()
-    description = Str()
+    tags = List(Str)
+    summary = Str
+    description = Str
     externalDocs = Instance(ExternalDocs)
-    operationId = Str()
-    consumes = List(Str())
-    produces = List(Str())
+    operationId = Str
+    consumes = List(Str)
+    produces = List(Str)
     parameters = List(Either(Parameters,Reference))
     responses = Instance(Responses)
     schemes   = List(Enum([None,"http", "https", "ws", "wss"]))
-    deprecated = Bool(None)
+    deprecated = Bool
     security = Instance(SecurityRequirement)
     _required = ["responses"]
 
@@ -219,11 +232,11 @@ class Paths(simple_atom):
 class Swagger(atom):
     swagger = Enum(["2.0"])
     info = Instance(Info)
-    host = Str()
-    basePath = Str()
+    host = Str
+    basePath = Str
     schemes = List(Enum([None,"http", "https", "ws", "wss"]))
-    consumes = List(Str())
-    produces = List(Str())
+    consumes = List(Str)
+    produces = List(Str)
     paths = Instance(Paths)
     definitions = Instance(Definitions)
     parameters = Instance(Parameters)

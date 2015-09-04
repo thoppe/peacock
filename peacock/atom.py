@@ -1,41 +1,63 @@
 import json
-from traits.api import HasTraits
-from traits.api import Instance, Int, Str, Float, List, Enum, Bool
+from traits.api import HasPrivateTraits, Disallow, Any
+from traits.api import Int, Str, Float, List, Enum, Bool, Dict
 
+# Traits that are required but missing will be replaced with
+# these placeholders.
+_default_traits = {
+    Str   : "Required string.",
+    Int   : -99999,
+    Float : -99999.0,
+    Bool  : False,
+}
 
-class atom(HasTraits):
+class atom(HasPrivateTraits):
     '''
-    Extension of traits that allows for required elements and has a nice print,
-    and JSON export.
+    Extension of traits that allows for required elements
+    and has a nice print, and JSON export.
     '''
     
-    _required = []
+    _required = List
     _conditional_required = {}
     _name_mappings = {}
 
     def __init__(self,input_dict=None,**kwargs):
+    
         if input_dict is not None:
             kwargs.update(input_dict)
-        
-        super(HasTraits,self).__init__(**kwargs)
+
+        super(HasPrivateTraits,self).__init__(**kwargs)
 
         # Check if any kwargs were added that are not within the spec
-        defined_keys = self.__getstate__().keys()
-        for key in kwargs:
-            if key not in defined_keys:
-                msg = "Key '{}' not defined in class {}."
-                raise ValueError(msg.format(key,self.__class__.__name__))
+        #defined_keys = self.__getstate__().keys()
+        #for key in kwargs:
+        #    if key not in defined_keys:
+        #        msg = "Key '{}' not defined in class {}."
+        #        raise ValueError(msg.format(key,self.__class__.__name__))
 
         # Add the conditional requirements to the list of required args
         for (key,val),req in self._conditional_required.items():
             if key in kwargs and kwargs[key] in val:
                 self._required += req
+                
 
-        # Check if all required arguments are present
+        # Check if all required arguments are present, if not use the default
+        '''
         for key in self._required:
             if key not in kwargs:
-                msg = "Key '{}' in class {} is required."
-                raise ValueError(msg.format(key,self.__class__.__name__))
+
+                trait_obj = self.trait(key).trait_type
+                obj_type  = type(trait_obj)
+
+                if obj_type not in _default_traits:                    
+                    my_name = self.__class__.__name__
+                    trait_name = trait_obj.__class__.__name__
+                    msg = 'Trait {} in {} does not have a fallback default.'
+                    raise ValueError(msg.format(trait_name, my_name))
+
+                val = _default_traits[obj_type]
+                self.set(**{key:val})
+        '''
 
         # Erase the values
         #self._required = None
@@ -53,10 +75,20 @@ class atom(HasTraits):
         obj.pop("__traits_version__")
         return obj
 
+    def _valididate_required(self):
+        for key in self._required:
+            if self.get(key)[key] is None:
+                my_name = self.__class__.__name__
+                trait_obj = self.trait(key).trait_type
+                trait_name = trait_obj.__class__.__name__
+                msg = "trait '{}' ({}) in {} is a required member can not be undefined."
+                raise ValueError(msg.format(key,trait_name,my_name))
+
     def as_dict(self):
 
-        output = {}
+        self._valididate_required()
 
+        output = {}
         obj = self.state()
         
         for key,val in obj.items():
@@ -95,3 +127,15 @@ class simple_atom(atom):
     def state(self):
         obj  = self.get("data")["data"]
         return obj
+
+
+if __name__ == "__main__":
+    class simple(atom):
+        name = Str
+        age  = Int
+        _required = ["name"]
+        _conditional_required = {("name",("bob",)):["age"]}
+    a = simple()
+    a.name = 'foo'
+    print a
+        
