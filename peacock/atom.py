@@ -116,7 +116,7 @@ class atom(HasPrivateTraits):
                 continue
                 
             # Always show the output for any True items or numbers set to zero
-            if val or val==0 or key in self._required:
+            if val is not None or key in self._required:
                 output[key] = val
         
         return output
@@ -135,8 +135,13 @@ class simple_atom(atom):
         super(atom,self).__init__(data=data)
     
     def state(self):
-        obj  = self.get("data")["data"]
-        return obj
+        return dict(self.data)
+
+    def __getitem__(self, key):
+        return self.state()[key]
+
+    def __setitem__(self, key, val):
+        self.data[key] = val
 
 
 if __name__ == "__main__":
@@ -146,6 +151,14 @@ if __name__ == "__main__":
 
     class complex(atom):
         x = Instance(number,())
+
+    class group(simple_atom):
+        data = Dict(Str,number)
+
+    g = group({"bob":number()})
+    g["bob"] = number({'value':7})
+    print g
+    exit()
 
     a = complex()
     print a

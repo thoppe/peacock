@@ -5,12 +5,6 @@ from traits.api import Int, Str, Float, List, Enum
 from traits.api import Bool, Any, Dict, Either, This
 from traits.api import Instance
 
-# Use the default of None for all basic types
-#Str  = Str(None)
-#Bool = Bool(None)
-#Int  = Int(None)
-#Float= Float(None)
-
 class License(atom):
     name = Str
     url  = Str

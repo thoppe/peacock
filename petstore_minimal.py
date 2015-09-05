@@ -1,75 +1,44 @@
 import peacock
 from peacock import *
 
-data ={"version":"1.0","title":"foo"}
-info = peacock.Info(data)
-info.license.name = "APACHE"
-
-'''
-props = {}
-sample_data = {"ping":0,"pong":"foo"}
-
-type_lookup = {
-    int:"integer",
-    float:"number",
-    bool:"boolean",
-    str:"string",
-    unicode:"string",
-}
-
-for name,val in sample_data.items():
-    obj_type = type_lookup[type(val)]
-    props[name] = peacock.Parameter(name=name,
-                                    in_="query",
-                                    type_=obj_type)
-
-print props["ping"]
-'''
-
-desc = "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification"
-
-info = Info(
-    {
-    "version": "1.0.0",
-    "title": "Swagger Petstore",
-    "description": desc,
-    "termsOfService": "http://swagger.io/terms/",
-    }
-)
+info = Info()
+info.description = "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification"
+info.title = "Swagger Petstore"
+info.termsOfService = "http://swagger.io/terms/"
 info.contact.name = "Swagger API Team"
 info.license.name = "MIT"
+info.version = "1.0.0"
 
-
-schema = Schema(type_="array",
-                items=Item(ref_="#/definitions/Pet"))
-
-res = Response(description="A list of pets.",
-               schema=schema)
+res = Response(description="A list of pets.")
+res.schema = Schema(type_="array")
+res.schema.items = Item(ref_="#/definitions/Pet")
 
 get_pet = Operation()
 get_pet.responses = Responses({"200":res})
 get_pet.produces  = ["application/json"]
 get_pet.description = "Returns all pets from the system that the user has access to"
 
-P = Paths({"/pets":Path(get=get_pet)})
+paths = Paths()
+paths["/pets"] = Path(get=get_pet)
 
-pet = Schema(type_="object",required=["id","name"],
-             properties=Properties(
-                 id=Property(type="integer",format="int64"),
-                 name=Property(type="string"),
-                 tag=Property(type="string"),
-             ))
-defs = Definitions(Pet=pet)
+pet = Schema(type_="object")
+pet.required=["id","name"]
+pet.properties = Properties()
 
-args = {
-    "consumes":["application/json"],
-    "produces":["application/json"],
-    "basePath":"/api",
-    "schemes":["http"],
-    "host":"petstore.swagger.io",
-}
+pet.properties["id"] = Property(type="integer",format="int64")
+pet.properties["name"] = Property(type="string")
+pet.properties["tag"] = Property(type="string")
 
-S = Swagger(args, info=info,paths=P,definitions=defs)
+defs = Definitions()
+defs["Pet"] = pet
+
+S = Swagger(info=info,paths=paths,definitions=defs)
+S.basePath = "/api"
+S.host = "petstore.swagger.io"
+S.schemes = ["http"]
+S.consumes = ["application/json"]
+S.produces = ["application/json"]
+
 print S
 
 if __name__ == "__main__":
