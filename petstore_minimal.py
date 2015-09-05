@@ -4,21 +4,8 @@ from peacock import *
 data ={"version":"1.0","title":"foo"}
 info = peacock.Info(data)
 info.license.name = "APACHE"
-print info
-exit()
 
-def minimal_peacock():
-    ''' Return a minimal working swagger file object (peacock) '''
-    data ={"version":"1.0","title":"foo"}
-    info = peacock.Info(data)
-    return info
-    sw = peacock.Swagger()
-    sw.paths = peacock.Paths()
-    sw.info = info
-    return sw
-
-p = minimal_peacock()
-
+'''
 props = {}
 sample_data = {"ping":0,"pong":"foo"}
 
@@ -37,6 +24,7 @@ for name,val in sample_data.items():
                                     type_=obj_type)
 
 print props["ping"]
+'''
 
 desc = "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification"
 
@@ -46,11 +34,11 @@ info = Info(
     "title": "Swagger Petstore",
     "description": desc,
     "termsOfService": "http://swagger.io/terms/",
-    "contact" : Contact(name="Swagger API Team"),
-    "license" : License(name="MIT")
     }
 )
-exit()
+info.contact.name = "Swagger API Team"
+info.license.name = "MIT"
+
 
 schema = Schema(type_="array",
                 items=Item(ref_="#/definitions/Pet"))
@@ -58,10 +46,10 @@ schema = Schema(type_="array",
 res = Response(description="A list of pets.",
                schema=schema)
 
-desc = "Returns all pets from the system that the user has access to"
-get_pet = Operation(responses=Responses({"200":res}),
-                    produces=["application/json"],
-                    description=desc)
+get_pet = Operation()
+get_pet.responses = Responses({"200":res})
+get_pet.produces  = ["application/json"]
+get_pet.description = "Returns all pets from the system that the user has access to"
 
 P = Paths({"/pets":Path(get=get_pet)})
 
@@ -96,6 +84,7 @@ if __name__ == "__main__":
     diff = DeepDiff(S2,S1)
 
     if len(diff)>0:
+        print diff
         raise SyntaxError("petstore_minimal.json doesn't match!")
     else:
         print "Passes!"

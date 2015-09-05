@@ -6,14 +6,10 @@ from traits.api import Bool, Any, Dict, Either, This
 from traits.api import Instance
 
 # Use the default of None for all basic types
-Str  = Str(None)
-Bool = Bool(None)
-Int  = Int(None)
-Float= Float(None)
-
-# Monkey-patch instance to create a default type
-#def Instance(trait_type,*args,**kwargs):
-#    return traits.api.Instance(trait_type,args=args,kwargs=kwargs)
+#Str  = Str(None)
+#Bool = Bool(None)
+#Int  = Int(None)
+#Float= Float(None)
 
 class License(atom):
     name = Str
@@ -230,7 +226,7 @@ class Paths(simple_atom):
 ###############################################################################
 
 class Swagger(atom):
-    swagger = Enum(["2.0"])
+    swagger = Str("2.0")
     info = Instance(Info)
     host = Str
     basePath = Str
@@ -245,6 +241,6 @@ class Swagger(atom):
     security = List(Instance(SecurityRequirement))
     tags = Instance(Tag)
     externalDocs = Instance(ExternalDocs)
-    _required=["paths","info"]
+    _required=["paths","info","swagger"]
 
 ###############################################################################
