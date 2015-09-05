@@ -1,6 +1,12 @@
 import peacock
 from peacock import *
 
+data ={"version":"1.0","title":"foo"}
+info = peacock.Info(data)
+info.license.name = "APACHE"
+print info
+exit()
+
 def minimal_peacock():
     ''' Return a minimal working swagger file object (peacock) '''
     data ={"version":"1.0","title":"foo"}
@@ -44,6 +50,7 @@ info = Info(
     "license" : License(name="MIT")
     }
 )
+exit()
 
 schema = Schema(type_="array",
                 items=Item(ref_="#/definitions/Pet"))

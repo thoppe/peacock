@@ -1,6 +1,8 @@
 import json
 from traits.api import HasPrivateTraits, Disallow, Any
-from traits.api import Int, Str, Float, List, Enum, Bool, Dict
+from traits.api import Int, Str, Float, List, Enum, Bool, Dict, Instance
+
+from traits.api import HasTraits, HasStrictTraits
 
 # Traits that are required but missing will be replaced with
 # these placeholders.
@@ -40,7 +42,6 @@ class atom(HasPrivateTraits):
             if key in kwargs and kwargs[key] in val:
                 self._required += req
                 
-
         # Check if all required arguments are present, if not use the default
         '''
         for key in self._required:
@@ -70,12 +71,22 @@ class atom(HasPrivateTraits):
     def __repr__(self):
         return self.json()
 
+    def __nonzero__(self):
+        # Only if all subtraits return nonzero too
+        #if self._required:
+        #    return True
+        
+        for key,val in self.state().items():
+            print "HERE!", key, val
+            if val: return True
+        return False
+
+
     def state(self):
-        obj = self.__getstate__()
-        obj.pop("__traits_version__")
-        return obj
+        return vars(self)
 
     def _valididate_required(self):
+        
         for key in self._required:
             if self.get(key)[key] is None:
                 my_name = self.__class__.__name__
@@ -85,7 +96,6 @@ class atom(HasPrivateTraits):
                 raise ValueError(msg.format(key,trait_name,my_name))
 
     def as_dict(self):
-
         self._valididate_required()
 
         output = {}
@@ -130,12 +140,30 @@ class simple_atom(atom):
 
 
 if __name__ == "__main__":
-    class simple(atom):
-        name = Str
-        age  = Int
-        _required = ["name"]
-        _conditional_required = {("name",("bob",)):["age"]}
-    a = simple()
-    a.name = 'foo'
+
+    class number(atom):
+        value = Float(None)
+
+    class complex(atom):
+        x = Instance(number,())
+
+    a = complex()
     print a
+    print bool(a)
+    print a.x.value
+    a.x.value =2
+    print a.x.value
+    print bool(a)
+    print a
+
+    print
+    b = complex()
+    print b.x.value
+    b.x.value = 3223
+    print a.x.value, b.x.value
+
+
+    
+    #print help(a)
+    
         

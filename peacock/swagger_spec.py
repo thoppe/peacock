@@ -30,8 +30,8 @@ class Info(atom):
     version = Str
     description    = Str
     termsOfService = Str
-    license = Instance(License)
-    contact = Instance(Contact)
+    license = Instance(License,())
+    contact = Instance(Contact,())
     _required = ["title", "version"]
 
 class XMLObject(atom):
