@@ -23,7 +23,6 @@ paths["/pets"] = Path(get=get_pet)
 
 pet = Schema(type_="object")
 pet.required=["id","name"]
-pet.properties = Properties()
 
 pet.properties["id"] = Property(type="integer",format="int64")
 pet.properties["name"] = Property(type="string")

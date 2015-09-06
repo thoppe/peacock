@@ -39,7 +39,7 @@ class ExternalDocs(atom):
 class Tag(atom):
     name = Str
     description = Str
-    externalDocs = Instance(ExternalDocs)
+    externalDocs = Instance(ExternalDocs,())
     _required = ["name"]
 
 class Scopes(simple_atom):
@@ -56,7 +56,7 @@ class SecurityScheme(atom):
     flow = Enum([None, "implicit", "password", "application", "accessCode"])
     authorizationUrl = Str
     tokenUrl = Str
-    scopes = Instance(Scopes)
+    scopes = Instance(Scopes,())
 
     _required = ["type_",]
     _conditional_required = {
@@ -95,7 +95,7 @@ class Item(atom):
     _name_mappings = {"type_":"type",
                       "ref_":"$ref"}
 
-    items = Instance(This)
+    items = Instance(This,())
     
 #Item.add_class_trait('items', Instance(Item))
 
@@ -112,24 +112,24 @@ class Properties(simple_atom):
     data = Dict(Str, Property)
     
 class Schema(atom):
-    ref_ = Instance(Reference)
+    ref_ = Instance(Reference,())
     title = Str
     description = Str
     required = List(Str)
     type_ = Str
 
-    properties = Instance(Properties)
+    properties = Instance(Properties,())
     #allOf = ???
     #additionalProperties = ???
     #maxProperties = Str
     #minProperties = Str
-    items = Instance(Item)
+    items = Instance(Item,())
 
     # Further schema documentation
     discriminator = Str
     readOnly = Bool
-    xml = Instance(XMLObject)
-    externalDocs = Instance(ExternalDocs)
+    xml = Instance(XMLObject,())
+    externalDocs = Instance(ExternalDocs,())
     example = Any
     
     _name_mappings = {"ref_":"$ref"}
@@ -137,7 +137,7 @@ class Schema(atom):
 
 
 class Definitions(simple_atom):
-    data = Dict(Str, Instance(Schema))
+    data = Dict(Str, Instance(Schema,()))
 
 ###############################################################################
 
@@ -148,7 +148,7 @@ class Parameter(Item):
     collectionFormat = Enum([None,"csv","ssb","tsv","pipes","multi"])
 
     in_   = Enum(["query", "header", "path", "formData", "body"])
-    schema = Instance(Schema)
+    schema = Instance(Schema,())
         
     _required = ["name","in_"]
     
@@ -177,9 +177,9 @@ class Example(simple_atom):
 
 class Response(atom):
     description = Str
-    schema = Instance(Schema)
-    headers = Instance(Headers)
-    examples = Instance(Example)
+    schema = Instance(Schema,())
+    headers = Instance(Headers,())
+    examples = Instance(Example,())
     _required = ["description"]
 
 class Responses(simple_atom):
@@ -191,26 +191,26 @@ class Operation(atom):
     tags = List(Str)
     summary = Str
     description = Str
-    externalDocs = Instance(ExternalDocs)
+    externalDocs = Instance(ExternalDocs,())
     operationId = Str
     consumes = List(Str)
     produces = List(Str)
     parameters = List(Either(Parameters,Reference))
-    responses = Instance(Responses)
+    responses = Instance(Responses,())
     schemes   = List(Enum([None,"http", "https", "ws", "wss"]))
     deprecated = Bool
-    security = Instance(SecurityRequirement)
+    security = Instance(SecurityRequirement,())
     _required = ["responses"]
 
 class Path(atom):
-    ref_ = Instance(Reference)
-    get  = Instance(Operation)
-    put  = Instance(Operation)
-    post = Instance(Operation)
-    delete  = Instance(Operation)
-    options = Instance(Operation)
-    head = Instance(Operation)
-    patch = Instance(Operation)
+    ref_ = Instance(Reference,())
+    get  = Instance(Operation,())
+    put  = Instance(Operation,())
+    post = Instance(Operation,())
+    delete  = Instance(Operation,())
+    options = Instance(Operation,())
+    head = Instance(Operation,())
+    patch = Instance(Operation,())
     parameters = List(Either(Parameters,Reference))
     _name_mappings = {"ref_":"$ref"}
 
@@ -221,20 +221,20 @@ class Paths(simple_atom):
 
 class Swagger(atom):
     swagger = Str("2.0")
-    info = Instance(Info)
+    info = Instance(Info,())
     host = Str
     basePath = Str
     schemes = List(Enum([None,"http", "https", "ws", "wss"]))
     consumes = List(Str)
     produces = List(Str)
-    paths = Instance(Paths)
-    definitions = Instance(Definitions)
-    parameters = Instance(Parameters)
-    responses = Instance(Responses)
-    securityDefinitions = Instance(SecurityDefinitions)
-    security = List(Instance(SecurityRequirement))
-    tags = Instance(Tag)
-    externalDocs = Instance(ExternalDocs)
+    paths = Instance(Paths,())
+    definitions = Instance(Definitions,())
+    parameters = Instance(Parameters,())
+    responses = Instance(Responses,())
+    securityDefinitions = Instance(SecurityDefinitions,())
+    security = List(Instance(SecurityRequirement,()))
+    tags = Instance(Tag,())
+    externalDocs = Instance(ExternalDocs,())
     _required=["paths","info","swagger"]
 
 ###############################################################################
