@@ -112,7 +112,7 @@ class Properties(simple_atom):
     data = Dict(Str, Property)
     
 class Schema(atom):
-    ref_ = Instance(Reference,())
+    ref_ = Either(Str, Instance(Reference,()))
     title = Str
     description = Str
     required = List(Str)
