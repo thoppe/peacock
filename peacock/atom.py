@@ -1,8 +1,8 @@
 import json
 from traits.api import HasPrivateTraits, Disallow, Any
 from traits.api import Int, Str, Float, List, Enum, Bool, Dict, Instance
-
 from traits.api import HasTraits, HasStrictTraits
+import traits
 
 # Traits that are required but missing will be replaced with
 # these placeholders.
@@ -31,11 +31,7 @@ class atom(HasPrivateTraits):
         super(HasPrivateTraits,self).__init__(**kwargs)
 
         # Check if any kwargs were added that are not within the spec
-        #defined_keys = self.__getstate__().keys()
-        #for key in kwargs:
-        #    if key not in defined_keys:
-        #        msg = "Key '{}' not defined in class {}."
-        #        raise ValueError(msg.format(key,self.__class__.__name__))
+        # (this is now done by subclassing "HasPrivateTraits"
 
         # Add the conditional requirements to the list of required args
         for (key,val),req in self._conditional_required.items():
@@ -59,11 +55,6 @@ class atom(HasPrivateTraits):
                 val = _default_traits[obj_type]
                 self.set(**{key:val})
         '''
-
-        # Erase the values
-        #self._required = None
-        #self._conditional_required = None
-
 
     def json(self):
         return json.dumps(self.as_dict(),indent=2)
@@ -108,8 +99,20 @@ class atom(HasPrivateTraits):
                 key = self._name_mappings[key]
 
             # If the child is another atom (inherited) then recursively run this
-            if atom in val.__class__.__mro__:
+            MRO = val.__class__.__mro__
+            if atom in MRO:
                 val = val.as_dict()
+
+            # If the child is a list convert all the items as well
+            if traits.trait_handlers.TraitListObject in MRO:
+                child_vals = []
+                for child in val:
+                    child_MRO = child.__class__.__mro__
+                    if atom in child_MRO:
+                        child_vals.append(child.as_dict())
+                    else:
+                        child_vals.append(child)
+                val = child_vals
 
             # Skip if value is hidden
             if key[0] == "_":

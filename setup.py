@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "peacock",
-    version = "0.0.8",
+    version = "0.0.9",
     author = "Travis Hoppe",
     author_email = "travis.hoppe+peacock@gmail.com",
     description = ("An implementation of the Swagger 2.0 spec in python."),

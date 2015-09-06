@@ -1,6 +1,32 @@
 import peacock
 from peacock import *
 
+key = "ping"
+ref = "#/definitions/{}".format(key)        
+get_id,create,delete = [peacock.Operation() for x in range(3)]
+
+#get.description = "Retrieves a node by index."
+#get.responses["200"] = peacock.Response()
+#get.responses["200"].description = "Returns a {} node.".format(key)
+#get.produces = ["application/json"]
+
+create.description = "Creates a {} node.".format(key)
+para = peacock.Parameter()
+para.name = key
+para.in_  = "body"
+para.description = "{} node to add.".format(key)
+para.required = True
+para.schema = peacock.Schema(ref_=ref)
+create.parameters.append(para)
+create.responses["200"] = Response()
+
+#print create.responses
+
+print create.json()
+exit()
+
+exit()
+
 
 info = Info()
 info.description = "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification"
