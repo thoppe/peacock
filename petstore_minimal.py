@@ -1,6 +1,7 @@
 import peacock
 from peacock import *
 
+
 info = Info()
 info.description = "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification"
 info.title = "Swagger Petstore"

@@ -195,7 +195,7 @@ class Operation(atom):
     operationId = Str
     consumes = List(Str)
     produces = List(Str)
-    parameters = List(Either(Parameters,Reference))
+    parameters = List(Either(Parameter,Reference))
     responses = Instance(Responses,())
     schemes   = List(Enum([None,"http", "https", "ws", "wss"]))
     deprecated = Bool
