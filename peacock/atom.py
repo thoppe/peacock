@@ -4,15 +4,6 @@ from traits.api import Int, Str, Float, List, Enum, Bool, Dict, Instance
 from traits.api import HasTraits, HasStrictTraits
 import traits
 
-# Traits that are required but missing will be replaced with
-# these placeholders.
-_default_traits = {
-    Str   : "Required string.",
-    Int   : -99999,
-    Float : -99999.0,
-    Bool  : False,
-}
-
 class atom(HasPrivateTraits):
     '''
     Extension of traits that allows for required elements
@@ -22,13 +13,24 @@ class atom(HasPrivateTraits):
     _required = List
     _conditional_required = {}
     _name_mappings = {}
+    _inv_name_mappings = {}
 
     def __init__(self,input_dict=None,**kwargs):
-    
+
+        '''
         if input_dict is not None:
             kwargs.update(input_dict)
-
         super(HasPrivateTraits,self).__init__(**kwargs)
+        '''
+        super(HasPrivateTraits,self).__init__()
+
+        # Set the inverse name mappings
+        self._inv_name_mappings = dict(zip(self._name_mappings.values(),
+                                           self._name_mappings.keys()))
+        
+        if input_dict is not None:
+            self.update(input_dict)
+        self.update(kwargs)    
 
         # Check if any kwargs were added that are not within the spec
         # (this is now done by subclassing "HasPrivateTraits"
@@ -37,24 +39,21 @@ class atom(HasPrivateTraits):
         for (key,val),req in self._conditional_required.items():
             if key in kwargs and kwargs[key] in val:
                 self._required += req
+
+    def update(self, input_dict):
+        
+        for key,val in input_dict.items():
+
+            keyx = self.get_inv_name(key)
+            trait = self.trait(keyx)
+            
+            if type(trait.trait_type) == traits.trait_types.Instance:
+                klass = trait.trait_type.klass
+                obj = klass()
+                obj.update(val)
+                val = obj
                 
-        # Check if all required arguments are present, if not use the default
-        '''
-        for key in self._required:
-            if key not in kwargs:
-
-                trait_obj = self.trait(key).trait_type
-                obj_type  = type(trait_obj)
-
-                if obj_type not in _default_traits:                    
-                    my_name = self.__class__.__name__
-                    trait_name = trait_obj.__class__.__name__
-                    msg = 'Trait {} in {} does not have a fallback default.'
-                    raise ValueError(msg.format(trait_name, my_name))
-
-                val = _default_traits[obj_type]
-                self.set(**{key:val})
-        '''
+            self.set(**{keyx:val})
 
     def json(self):
         return json.dumps(self.as_dict(),indent=2)
@@ -68,7 +67,6 @@ class atom(HasPrivateTraits):
         #    return True
         
         for key,val in self.state().items():
-            print "HERE!", key, val
             if val: return True
         return False
 
@@ -86,6 +84,16 @@ class atom(HasPrivateTraits):
                 msg = "trait '{}' ({}) in {} is a required member can not be undefined."
                 raise ValueError(msg.format(key,trait_name,my_name))
 
+    def get_name(self,name):
+        if name in self._name_mappings:
+            return self._name_mappings[name]
+        return name
+
+    def get_inv_name(self,inv_name):
+        if inv_name in self._inv_name_mappings:
+            return self._inv_name_mappings[inv_name]
+        return inv_name
+
     def as_dict(self):
         self._valididate_required()
 
@@ -95,8 +103,7 @@ class atom(HasPrivateTraits):
         for key,val in obj.items():
 
             # Take care of any name mappings
-            if key in self._name_mappings:
-                key = self._name_mappings[key]
+            key = self.get_name(key)
 
             # If the child is another atom (inherited) then recursively run this
             MRO = val.__class__.__mro__
@@ -145,6 +152,25 @@ class simple_atom(atom):
 
     def __setitem__(self, key, val):
         self.data[key] = val
+
+    def update(self, input_dict):
+
+        # data key and value traits
+        _,trait = self.trait("data").inner_traits
+
+        is_instance = True
+        is_instance = type(trait.trait_type) == traits.trait_types.Instance
+
+        for key, val in input_dict.items():
+            if is_instance:
+                klass = trait.trait_type.klass
+                obj = klass()
+                obj.update(val)
+                val = obj
+                
+            self[key] = val
+        
+
 
 
 if __name__ == "__main__":

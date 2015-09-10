@@ -49,28 +49,29 @@ class SecurityRequirement(simple_atom):
     data = Dict(Str, List(Str))
 
 class SecurityScheme(atom):
-    type_ = Enum([None,"basic", "apiKey","oauth2"])
+    type000 = Enum([None,"basic", "apiKey","oauth2"])
     description = Str
     name = Str
-    in_  = Enum([None,"query","header"])
+    in000  = Enum([None,"query","header"])
     flow = Enum([None, "implicit", "password", "application", "accessCode"])
     authorizationUrl = Str
     tokenUrl = Str
     scopes = Instance(Scopes,())
 
-    _required = ["type_",]
+    _required = ["type000",]
     _conditional_required = {
-        ("type_",("apiKey",)):["name","in_"],
-        ("type_",("oauth2",)):["flow","authorizationUrl","tokenUrl","scopes"],
+        ("type000",("apiKey",)):["name","in000"],
+        ("type000",("oauth2",)):["flow","authorizationUrl","tokenUrl","scopes"],
     }
-    _name_mappings = {"in_":"in", "type_":"type"}
+    _name_mappings = {"in000":"in", "type000":"type"}
         
 class SecurityDefinitions(simple_atom):
-    data = Dict(Str, SecurityScheme)
+    data = Dict(Str, Instance(SecurityScheme,()))
         
 class Item(atom):
-    ref_    = Str
-    type_   = Enum([None,"string","number","integer","boolean","array","file"])
+    ref000    = Str
+    type000   = Enum([None,"string","number","integer",
+                      "boolean","array","file"])
     format  = Str
     allowEmptyValue = Bool
     default = Str
@@ -87,36 +88,36 @@ class Item(atom):
     enum = List(Str)
     multipleOf = Float
 
-    #_required = ["type_"]
+    #_required = ["type000"]
     
     _conditional_required = {
-        ("type_",("array",)):["items"],
+        ("type000",("array",)):["items"],
     }
-    _name_mappings = {"type_":"type",
-                      "ref_":"$ref"}
+    _name_mappings = {"type000":"type",
+                      "ref000":"$ref"}
 
     items = Instance(This,())
     
 #Item.add_class_trait('items', Instance(Item))
 
 class Reference(atom):
-    ref_ = Str
-    _name_mappings = {"ref_":"$ref"}
-    _required = ["ref_"]
+    ref000 = Str
+    _name_mappings = {"ref000":"$ref"}
+    _required = ["ref000"]
 
 
 class Property(Item):
     pass
 
 class Properties(simple_atom):
-    data = Dict(Str, Property)
+    data = Dict(Str, Instance(Property,()))
     
 class Schema(atom):
-    ref_ = Either(Str, Instance(Reference,()))
+    ref000 = Either(Str, Instance(Reference,()))
     title = Str
     description = Str
     required = List(Str)
-    type_ = Str
+    type000 = Str
 
     properties = Instance(Properties,())
     #allOf = ???
@@ -132,7 +133,7 @@ class Schema(atom):
     externalDocs = Instance(ExternalDocs,())
     example = Any
     
-    _name_mappings = {"ref_":"$ref"}
+    _name_mappings = {"ref000":"$ref"}
     _name_mappings.update(Item._name_mappings)
 
 
@@ -147,22 +148,22 @@ class Parameter(Item):
     required = Bool
     collectionFormat = Enum([None,"csv","ssb","tsv","pipes","multi"])
 
-    in_   = Enum(["query", "header", "path", "formData", "body"])
+    in000   = Enum(["query", "header", "path", "formData", "body"])
     schema = Instance(Schema,())
         
-    _required = ["name","in_"]
+    _required = ["name","in000"]
     
     _conditional_required = {
-        ("in_",("body",)):["schema"],
-        ("in_",("query", "header", "path", "formData",)):["type_"],
+        ("in000",("body",)):["schema"],
+        ("in000",("query", "header", "path", "formData",)):["type000"],
     }
     _conditional_required.update(Item._conditional_required)
     
-    _name_mappings = {"in_":"in"}
+    _name_mappings = {"in000":"in"}
     _name_mappings.update(Item._name_mappings)
 
 class Parameters(simple_atom):
-    data = Dict(Str, Parameter)
+    data = Dict(Str, Instance(Parameter,()))
 
 ###############################################################################
 
@@ -170,7 +171,7 @@ class Header(Item):
     pass
 
 class Headers(simple_atom):
-    data = Dict(Str, Header)
+    data = Dict(Str, Instance(Header,()))
 
 class Example(simple_atom):
     data = Dict(Str,Dict(Str,Str))
@@ -183,7 +184,7 @@ class Response(atom):
     _required = ["description"]
 
 class Responses(simple_atom):
-    data = Dict(Str, Response)
+    data = Dict(Str, Instance(Response,()))
 
 ###############################################################################
 
@@ -203,7 +204,7 @@ class Operation(atom):
     _required = ["responses"]
 
 class Path(atom):
-    ref_ = Instance(Reference,())
+    ref000 = Instance(Reference,())
     get  = Instance(Operation,())
     put  = Instance(Operation,())
     post = Instance(Operation,())
@@ -212,10 +213,10 @@ class Path(atom):
     head = Instance(Operation,())
     patch = Instance(Operation,())
     parameters = List(Either(Parameters,Reference))
-    _name_mappings = {"ref_":"$ref"}
+    _name_mappings = {"ref000":"$ref"}
 
 class Paths(simple_atom):
-    data = Dict(Str, Path)
+    data = Dict(Str, Instance(Path,()))
 
 ###############################################################################
 

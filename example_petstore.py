@@ -13,19 +13,17 @@ get_id,create,delete = [peacock.Operation() for x in range(3)]
 create.description = "Creates a {} node.".format(key)
 para = peacock.Parameter()
 para.name = key
-para.in_  = "body"
+para.in000  = "body"
 para.description = "{} node to add.".format(key)
 para.required = True
-para.schema = peacock.Schema(ref_=ref)
+para.schema = peacock.Schema(ref000=ref)
 create.parameters.append(para)
 create.responses["200"] = Response()
 
 #print create.responses
-
-print create.json()
-exit()
-
-exit()
+#print create.json()
+#exit()
+#exit()
 
 
 info = Info()
@@ -37,8 +35,8 @@ info.license.name = "MIT"
 info.version = "1.0.0"
 
 res = Response(description="A list of pets.")
-res.schema = Schema(type_="array")
-res.schema.items = Item(ref_="#/definitions/Pet")
+res.schema = Schema(type000="array")
+res.schema.items = Item(ref000="#/definitions/Pet")
 
 get_pet = Operation()
 get_pet.responses = Responses({"200":res})
@@ -46,9 +44,12 @@ get_pet.produces  = ["application/json"]
 get_pet.description = "Returns all pets from the system that the user has access to"
 
 paths = Paths()
-paths["/pets"] = Path(get=get_pet)
+get_path = Path()
+get_path.get = get_pet
 
-pet = Schema(type_="object")
+paths["/pets"] = get_path
+
+pet = Schema(type000="object")
 pet.required=["id","name"]
 
 pet.properties["id"] = Property(type="integer",format="int64")
@@ -58,7 +59,10 @@ pet.properties["tag"] = Property(type="string")
 defs = Definitions()
 defs["Pet"] = pet
 
-S = Swagger(info=info,paths=paths,definitions=defs)
+S = Swagger()
+S.info=info
+S.paths=paths
+S.definitions=defs
 S.basePath = "/api"
 S.host = "petstore.swagger.io"
 S.schemes = ["http"]
