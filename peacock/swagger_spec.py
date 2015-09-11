@@ -238,4 +238,8 @@ class Swagger(atom):
     externalDocs = Instance(ExternalDocs,())
     _required=["paths","info","swagger"]
 
+    def has_path(self, path):
+        # Returns True if the path is a valid endpoint
+        return path in self.paths.keys()
+
 ###############################################################################

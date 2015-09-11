@@ -143,6 +143,9 @@ class simple_atom(atom):
             data.update(input_dict)
         data.update(input_kwargs)
         super(atom,self).__init__(data=data)
+
+    def keys(self):
+        return self.data.keys()
     
     def state(self):
         return dict(self.data)
