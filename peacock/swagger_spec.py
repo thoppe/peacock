@@ -140,7 +140,7 @@ class Schema(atom):
 class Definitions(simple_atom):
     data = Dict(Str, Instance(Schema,()))
 
-###############################################################################
+######################################################################
 
 class Parameter(Item):
     name = Str
@@ -165,7 +165,7 @@ class Parameter(Item):
 class Parameters(simple_atom):
     data = Dict(Str, Instance(Parameter,()))
 
-###############################################################################
+######################################################################
 
 class Header(Item):
     pass
@@ -186,7 +186,7 @@ class Response(atom):
 class Responses(simple_atom):
     data = Dict(Str, Instance(Response,()))
 
-###############################################################################
+######################################################################
 
 class Operation(atom):
     tags = List(Str)
@@ -196,7 +196,8 @@ class Operation(atom):
     operationId = Str
     consumes = List(Str)
     produces = List(Str)
-    parameters = List(Either(Parameter,Reference))
+    parameters = List(Either(Instance(Parameter,()),
+                             Instance(Reference,())))
     responses = Instance(Responses,())
     schemes   = List(Enum([None,"http", "https", "ws", "wss"]))
     deprecated = Bool
@@ -218,7 +219,7 @@ class Path(atom):
 class Paths(simple_atom):
     data = Dict(Str, Instance(Path,()))
 
-###############################################################################
+######################################################################
 
 class Swagger(atom):
     swagger = Str("2.0")
@@ -251,4 +252,4 @@ class Swagger(atom):
 
         return self.paths[path]
 
-###############################################################################
+######################################################################

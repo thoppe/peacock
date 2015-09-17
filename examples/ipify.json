@@ -1,0 +1,99 @@
+
+{
+  "info": {
+    "termsOfService": "https://github.com/rdegges/ipify-api", 
+    "description": "A Simple IP Address API", 
+    "license": {
+      "name": "UNLICENCE"
+    }, 
+    "title": "ipify", 
+    "contact": {
+      "name": "Randall Degges"
+    }, 
+    "version": "1.0.0"
+  }, 
+  "paths": {
+    "/": {
+      "get": {
+        "responses": {
+          "default": {
+            "description": "unexpected error", 
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "x-expires": {
+                "type": "string"
+              }
+            }, 
+            "description": "ip response", 
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/ip_address"
+              }, 
+              "type": "string"
+            }
+          }
+        }, 
+        "description": "Using ipify is ridiculously simple. You have three options. You can get your public IP directly (in plain text), you can get your public IP in JSON format, or you can get your public IP information in JSONP format (useful for Javascript developers).", 
+        "parameters": [
+          {
+            "description": "output format", 
+            "required": false, 
+            "type": "string", 
+            "name": "format", 
+            "in": "query"
+          }
+        ], 
+        "produces": [
+          "application/json", 
+          "text/xml"
+        ]
+      }
+    }
+  }, 
+  "schemes": [
+    "https"
+  ], 
+  "produces": [
+    "application/json"
+  ], 
+  "basePath": "/", 
+  "host": "api.ipify.org", 
+  "definitions": {
+    "ErrorModel": {
+      "required": [
+        "code", 
+        "message"
+      ], 
+      "type": "object", 
+      "properties": {
+        "message": {
+          "type": "string"
+        }, 
+        "code": {
+          "type": "integer", 
+          "format": "int32"
+        }
+      }
+    }, 
+    "ip_address": {
+      "required": [
+        "ip"
+      ], 
+      "type": "object", 
+      "properties": {
+        "ip": {
+          "type": "string", 
+          "format": "ip-address"
+        }
+      }
+    }
+  }, 
+  "swagger": "2.0", 
+  "consumes": [
+    "application/json"
+  ]
+}

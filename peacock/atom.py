@@ -4,6 +4,8 @@ from traits.api import Int, Str, Float, List, Enum, Bool, Dict, Instance
 from traits.api import HasTraits, HasStrictTraits
 import traits
 
+import swagger_spec
+
 class atom(HasPrivateTraits):
     '''
     Extension of traits that allows for required elements
@@ -52,7 +54,27 @@ class atom(HasPrivateTraits):
                 obj = klass()
                 obj.update(val)
                 val = obj
-                
+
+            # MAJOR KLUDGE HERE JUST TO GET THIS WORKING... :(
+            if keyx == "parameters":
+                valx = []
+                for item in val:
+                    p = None
+                    if p == None:
+                        try:
+                            p = swagger_spec.Parameter()
+                            p.update(item)
+                        except:
+                            p = None
+                    if p == None:
+                        try:
+                            p = swagger_spec.Reference()
+                            p.update(item)
+                        except:
+                            p = None
+                    valx.append(p)
+                val = valx
+
             self.set(**{keyx:val})
 
     def json(self):
@@ -163,14 +185,13 @@ class simple_atom(atom):
 
         is_instance = True
         is_instance = type(trait.trait_type) == traits.trait_types.Instance
-
+        
         for key, val in input_dict.items():
             if is_instance:
                 klass = trait.trait_type.klass
                 obj = klass()
                 obj.update(val)
                 val = obj
-                
             self[key] = val
         
 
