@@ -242,4 +242,13 @@ class Swagger(atom):
         # Returns True if the path is a valid endpoint
         return path in self.paths.keys()
 
+    def list_paths(self):
+        return self.paths.keys()
+
+    def get_path(self, path):
+        if not self.has_path(path):
+            raise KeyError
+
+        return self.paths[path]
+
 ###############################################################################

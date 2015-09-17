@@ -10,5 +10,6 @@ S = peacock.Swagger()
 #print S
 S.update(js)
 #print S
-
-print S.has_path('foo')
+print S.list_paths()
+print S.has_path('/pets')
+print S.get_path('/pets')
