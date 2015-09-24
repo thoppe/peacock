@@ -3,6 +3,12 @@ from urlparse import urlsplit, parse_qs
 import datetime, ast
 import dateutil.parser
 import logging
+import requests
+
+import bs4
+#import requests_cache
+#requests_cache.install_cache('debug_cache')
+
 logging.basicConfig(level=logging.INFO)
 
 def infer_type(x):
@@ -79,24 +85,45 @@ def get_parameters(url):
 
     return parameters
     
-    
+def build_core_swagger_from_url(url):
+    S = Swagger()
+    p = urlsplit(url)
 
+    S.schemes = list(set(S.schemes + [p.scheme]))
+    S.host = p.netloc
+    S.basePath = "/"
+
+    return S
+
+def build_get_path(url):
+    path = Path()
+    path.get.responses  = Responses({"200":Response()})
+    path.get.parameters = get_parameters(url)
+
+    # request the url
+    r = requests.get(url)
+    print r
+    if r.status_code == 200:
+        print "ROCK AND ROLL!"
+    else:
+        soup = bs4.BeautifulSoup(r.content, 'html.parser')
+        msg = u"url {} failed.\n{}".format(url, soup.text.strip())
+        logging.warning(msg)
+        
+    return path
+
+
+# For testing load an API key
 with open("../api_key_demo.md") as FIN:
     API_KEY = FIN.read().strip()    
 
 url = "https://api.nasa.gov/planetary/earth/imagery?lon=100.75&lat=1.5&date=2014-02-01&cloud_score=True&api_key=DEMO_KEY"
 
-S = Swagger()
+url = url.replace("DEMO_KEY",API_KEY)
+
+S = build_core_swagger_from_url(url)
+
 p = urlsplit(url)
+S.paths[p.path] = build_get_path(url)
 
-S.schemes = list(set(S.schemes + [p.scheme]))
-S.host = p.netloc
-S.basePath = "/"
-
-S.paths[p.path] = path = Path()
-path.get.responses = Responses({"200":Response()})
-
-parameters = Parameters()
-path.get.parameters = get_parameters(url)
-
-print S
+#print S
