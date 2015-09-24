@@ -6,6 +6,12 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 def infer_type(x):
+    '''
+    Given a python object x, tries to infer the type using ast.
+    This should return proper ints,floats,bools,strs,unicodes.
+    If that fails try to return a datetime.
+    If all values return a string type.
+    '''
     # First try a common type
     try:
         obj = ast.literal_eval(x)
